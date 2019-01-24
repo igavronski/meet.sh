@@ -1,4 +1,6 @@
 #!/bin/bash
+# ig20190124 tz displays the local time in several locations
+# locations are set in the meet.cfg file
 dfmt="%H:%M"
 format1="%-10s "
 format2="%5s \n"
