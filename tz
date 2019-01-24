@@ -1,0 +1,19 @@
+#!/bin/bash
+dfmt="%H:%M"
+format1="%-10s "
+format2="%5s \n"
+while IFS=$'\r\n' read line; do
+    if [[ "$line" =~ ^#.*$ ]] || [[ "$line" =~ ^[:space:]*$ ]]
+    then
+        continue
+    fi
+    place+=($line)
+done < $t/meet.cfg
+for i in `seq 0 $((${#place[*]}-1))` 
+do
+    there=`TZ=${place[$i]} date "+$dfmt"`
+    city=${place[$i]/*\//}
+    printf "$format1" "$city"
+    printf "$format2" "$there"
+done
+#printf "\n" 

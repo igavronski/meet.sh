@@ -1,0 +1,42 @@
+#!/bin/bash
+# ig20180122 - displays meeting options in other time zones
+# set the most common places in meet.cfg
+# set the following variable to the start and end of your working day
+myday="8 20" # start and end time, with one space
+# set the date format for search
+dfmt="%m-%d" # date format for meeting date
+hfmt="+%B %e, %Y" # date format for the header
+# no need to change onwards
+format1="%-10s " # Increase if your cities are large
+format2="%02d "
+while IFS=$'\r\n' read line; do
+    if [[ "$line" =~ ^#.*$ ]] || [[ "$line" =~ ^[:space:]*$ ]]
+    then
+        continue
+    fi
+    place+=($line)
+done < $t/meet.cfg
+# set the local TZ
+myplace=${place[0]}
+unset place[0]
+mdate=$1
+if [[ "$1" == "" ]]; then mdate=`date "+$dfmt"`; fi
+date -j -f "$dfmt" "$hfmt" "$mdate"
+here=`TZ=$myplace date -j -f "$dfmt" +%z  "$mdate"`
+here=$((`printf "%g" $here` / 100))
+printf "$format1" "Here" 
+printf "$format2" `seq $myday` 
+printf "\n"
+for i in `seq 1 "${#place[*]}"`
+do
+    there=`TZ=${place[$i]} date -j -f "$dfmt" +%z  "$mdate"`
+    there=$((`printf "%g" $there` / 100))
+    city[$i]=${place[$i]/*\//}
+    tdiff[$i]=$(($there - $here))
+    printf "$format1" ${city[$i]}
+    for j in `seq $myday`
+    do
+        printf "$format2" $(($j+${tdiff[$i]}))
+    done
+    printf "(%+d)\n" ${tdiff[$i]}
+done
